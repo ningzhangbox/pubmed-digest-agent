@@ -1,0 +1,37 @@
+name: Daily Scientific Literature Digest
+
+on:
+  schedule:
+    # Runs at 12:00 UTC every day.
+    # Check current UTC time and adjust this cron schedule if 7 AM in your local time is different.
+    # Example: '0 10 * * *' runs at 10:00 UTC.
+    - cron: '0 12 * * *'
+  
+  # Allows manual testing from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  run_digest_agent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Digest Agent and Send Email
+        env:
+          # --- Environment Variables (Secrets) ---
+          # These must be set in your GitHub Repository Secrets
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }} # Comma-separated string of emails
+          ENTREZ_EMAIL: ${{ secrets.ENTREZ_EMAIL }}
+          # ---------------------------------------
+        run: python daily_digest_agent.py

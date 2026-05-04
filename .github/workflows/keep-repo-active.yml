@@ -1,0 +1,29 @@
+# 自动保活：每周更新一次时间戳，防止GitHub禁用定时工作流
+name: Keep Repo Active
+
+# 定时触发：每周一 00:00 UTC 运行
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+  # 首次创建时手动运行一次
+  workflow_dispatch:
+
+jobs:
+  keep-active:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update timestamp file
+        run: |
+          # 创建/更新时间戳文件
+          date > last_active.txt
+          echo "Updated at $(date)"
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'Auto-update activity timestamp'
+          committer_name: GitHub Actions
+          committer_email: actions@github.com
